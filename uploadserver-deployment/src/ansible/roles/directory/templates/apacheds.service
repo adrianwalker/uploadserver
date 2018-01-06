@@ -1,0 +1,19 @@
+[Unit]
+Description=ApacheDS
+After=network.target
+
+[Service]
+User=apacheds
+Group=apacheds
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/opt/uploadserver/java/bin:/opt/uploadserver/apacheds/bin
+Environment=JAVA_HOME=/opt/uploadserver/java
+Environment=ADS_HOME=/opt/uploadserver/apacheds
+
+Type=forking
+ExecStart=/opt/uploadserver/apacheds/bin/apacheds.sh start
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

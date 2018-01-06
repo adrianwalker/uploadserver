@@ -1,0 +1,19 @@
+[Unit]
+Description=Consumer
+After=network.target
+
+[Service]
+User=consumer
+Group=consumer
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/opt/uploadserver/java/bin:/opt/uploadserver/consumer
+Environment=JAVA_HOME=/opt/uploadserver/java
+Environment=CLASSPATH=/opt/uploadserver/consumer/*:/opt/uploadserver/consumer/lib/*
+
+Type=simple
+ExecStart=/opt/uploadserver/java/bin/java -Dlogback.configurationFile=/opt/uploadserver/consumer/config/logback.xml org.adrianwalker.uploadserver.consumer.UploadServerConsumer /opt/uploadserver/consumer/config/uploadserver-consumer.properties
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,42 @@
+- name: Create uploadserver group
+  group:
+    name: uploadserver
+
+- name: Create uploadserver user
+  user:
+    name: uploadserver
+    group: uploadserver
+    system: yes
+    createhome: no
+
+- name: Remove uploadserver
+  file:
+    path: /opt/uploadserver
+    state: absent
+
+- name: Create Upload Server directory
+  file:
+    path: /opt/uploadserver
+    state: directory
+    owner: uploadserver
+    group: uploadserver
+
+- name: Create Upload Server log directory
+  file:
+    path: /opt/uploadserver/log
+    state: directory
+    owner: uploadserver
+    group: uploadserver
+    mode: 0777
+
+- name: Create Java directory
+  file:
+    path: /opt/uploadserver/java
+    state: directory
+
+- name:  Unarchive Java
+  unarchive:
+    src: ../files/jre-{{java_version}}-linux-x64.tar.gz
+    dest: /opt/uploadserver/java
+    remote_src: no
+    extra_opts: ['--strip-components=1']

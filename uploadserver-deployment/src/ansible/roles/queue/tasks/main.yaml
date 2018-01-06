@@ -1,0 +1,65 @@
+- name: Create kafka group
+  group:
+    name: kafka
+
+- name: Create kafka user
+  user:
+    name: kafka
+    group: kafka
+    system: yes
+    createhome: no
+
+- name: Create Apache Kafka directory
+  file:
+    path: /opt/uploadserver/kafka
+    state: directory
+    owner: kafka
+    group: kafka
+
+- name: Unarchive Apache Kafka
+  unarchive:
+    src: ../files/kafka_{{scala_version}}-{{kafka_version}}.tgz
+    dest: /opt/uploadserver/kafka
+    remote_src: no
+    extra_opts: ['--strip-components=1']
+    owner: kafka
+    group: kafka
+
+- name: Configure Apache Kafka
+  lineinfile:
+    dest: /opt/uploadserver/kafka/config/server.properties
+    regexp: '#delete.topic.enable=true'
+    line: 'delete.topic.enable=true'
+
+- name: Copy systemd service
+  template:
+    src: ../templates/zookeeper.service
+    dest: /etc/systemd/system/zookeeper.service
+
+- name: Copy systemd service
+  template:
+    src: ../templates/kafka.service
+    dest: /etc/systemd/system/kafka.service
+
+- name: Start zookeeper service
+  systemd:
+    name: zookeeper
+    state: started
+
+- name: Wait for port 2181
+  wait_for:
+    port: 2181
+    delay: 3
+    timeout: 60
+
+- name: Restart kafka service
+  systemd:
+    daemon_reload: yes
+    name: kafka
+    state: restarted
+
+- name: Wait for port 9092
+  wait_for:
+    port: 9092
+    delay: 3
+    timeout: 60

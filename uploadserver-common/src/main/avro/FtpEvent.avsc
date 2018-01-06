@@ -1,0 +1,10 @@
+{
+  "namespace": "org.adrianwalker.uploadserver.record",
+  "type": "record",
+  "name": "FtpEvent",
+  "fields": [
+    {"name": "username", "type": "string"},
+    {"name": "command", "type": "string"},
+    {"name": "path", "type": "string"}
+  ]
+}

@@ -1,0 +1,91 @@
+---
+- hosts:
+    directory
+    ftp
+    queue
+    database
+    consumer
+    web
+  roles:
+  - role: common
+
+- hosts:
+    consumer
+  roles:
+  - role: consumer
+
+- hosts:
+    database
+  roles:
+  - role: database
+
+- hosts:
+    directory
+  roles:
+  - role: directory
+
+- hosts:
+    ftp
+  roles:
+  - role: ftp
+
+- hosts:
+    queue
+  roles:
+  - role: queue
+
+- hosts:
+    web
+  roles:
+  - role: web
+
+#  - name: Create FTP keystore
+#    become_user: ftpserver
+#    command: >
+#      keytool -genkeypair -alias keystore -keyalg RSA
+#      -keystore /opt/uploadserver/ftpserver/res/ftpserver-keystore.jks
+#      -dname "dc=taffnaid,dc=pics"
+#      -storepass secret
+#      -keypass secret
+
+#  - name: Copy LDAP user manager library
+#    copy:
+#      src: ~/.m2/repository/org/adrianwalker/apache/ftpserver/ldap-user-manager/{{ldapusermanager_version}}/ldap-user-manager-{{ldapusermanager_version}}-jar-with-dependencies.jar
+#      dest: /opt/uploadserver/ftpserver/common/lib/ldap-user-manager-{{ldapusermanager_version}}.jar
+#      owner: ftpserver
+
+#  - name: Copy Kafka ftplet library
+#    copy:
+#      src: ~/.m2/repository/org/adrianwalker/apache/ftpserver/kafka-ftplet/{{kafkaftplet_version}}/kafka-ftplet-{{kafkaftplet_version}}-jar-with-dependencies.jar
+#      dest: /opt/uploadserver/ftpserver/common/lib/kafka-ftplet-{{kafkaftplet_version}}.jar
+#      owner: ftpserver
+
+#  - name: Copy FTP config
+#    template:
+#      src: templates/ftpd.xml
+#      dest: /opt/uploadserver/ftpserver/res/conf/ftpd.xml
+#      owner: ftpserver
+
+#  - name: Copy init.d script
+#    template:
+#      src: templates/apacheftp
+#      dest: /etc/init.d/apacheftp
+#      mode: "0755"
+
+
+
+
+
+
+#  - name: Copy Apache Zookeeper init.d script
+#    template:
+#      src: templates/zookeeper
+#      dest: /etc/init.d/zookeeper
+#      mode: "0755"
+
+#  - name: Copy Apache Kafka init.d script
+#    template:
+#      src: templates/kafka
+#      dest: /etc/init.d/kafka
+#      mode: "0755"
+

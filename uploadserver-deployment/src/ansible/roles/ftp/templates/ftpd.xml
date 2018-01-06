@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+  xmlns="http://mina.apache.org/ftpserver/spring/v1"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                      http://mina.apache.org/ftpserver/spring/v1
+                      http://mina.apache.org/ftpserver/ftpserver-1.0.xsd">
+
+  <beans:bean
+    id="ldapUserManagerFactory"
+    class="org.adrianwalker.uploadserver.configuration.factory.LdapUserManagerFactory">
+    <beans:constructor-arg index="0" value="localhost"/>
+    <beans:constructor-arg index="1" value="10389"/>
+    <beans:constructor-arg index="2" value="uid=admin,ou=system"/>
+    <beans:constructor-arg index="3" value="secret"/>
+    <beans:constructor-arg index="4" value="200"/>
+    <beans:constructor-arg index="5" value="20"/>
+    <beans:constructor-arg index="6" value="180000"/>
+    <beans:constructor-arg index="7" value="ou=users,ou=system"/>
+  </beans:bean>
+
+  <beans:bean
+    id="ldapUserManager"
+    class="org.adrianwalker.ftpserver.usermanager.ldap.LdapUserManager"
+    factory-bean="ldapUserManagerFactory"
+    factory-method="newInstance">
+  </beans:bean>
+
+  <beans:bean
+    id="cassandraFileSystemFactoryFactory"
+    class="org.adrianwalker.uploadserver.configuration.factory.CassandraFileSystemFactoryFactory">
+    <beans:constructor-arg index="0" value="localhost"/>
+    <beans:constructor-arg index="1" value="9042"/>
+    <beans:constructor-arg index="2" value="uploadserver"/>
+  </beans:bean>
+
+  <beans:bean
+    id="cassandraFileSystemFactory"
+    class="org.adrianwalker.ftpserver.filesystem.CassandraFileSystemFactory"
+    factory-bean="cassandraFileSystemFactoryFactory"
+    factory-method="newInstance">
+  </beans:bean>
+
+  <beans:bean
+    id="ftpEventProducerFtpletFactory"
+    class="org.adrianwalker.uploadserver.configuration.factory.FtpEventProducerFtpletFactory">
+    <beans:constructor-arg index="0" value="localhost"/>
+    <beans:constructor-arg index="1" value="9092"/>
+    <beans:constructor-arg index="2" value="uploads"/>
+  </beans:bean>
+
+  <beans:bean
+    id="ftpEventProducerFtplet"
+    class="org.adrianwalker.uploadserver.producer.ftp.FtpEventProducerFtplet"
+    factory-bean="ftpEventProducerFtpletFactory"
+    factory-method="newInstance">
+  </beans:bean>
+
+  <server
+    id="default"
+    max-logins="200"
+    anon-enabled="false"
+    max-anon-logins="0"
+    max-login-failures="3"
+    login-failure-delay="3000">
+
+    <listeners>
+      <nio-listener name="default" port="8021" implicit-ssl="true">
+        <ssl>
+          <keystore file="./res/uploadserver-keystore.jks" password="secret" />
+        </ssl>
+      </nio-listener>
+    </listeners>
+
+    <ftplets>
+      <ftplet name="eventProducer">
+        <beans:ref local="ftpEventProducerFtplet"/>
+      </ftplet>
+    </ftplets>
+
+    <user-manager>
+      <beans:ref local="ldapUserManager"/>
+    </user-manager>
+
+    <filesystem>
+      <beans:ref local="cassandraFileSystemFactory"/>
+    </filesystem>
+
+  </server>
+</beans:beans>

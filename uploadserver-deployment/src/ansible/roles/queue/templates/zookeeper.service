@@ -1,0 +1,18 @@
+[Unit]
+Description=Zookeeper
+After=network.target
+
+[Service]
+User=kafka
+Group=kafka
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/opt/uploadserver/java/bin:/opt/uploadserver/kafka/bin
+Environment=JAVA_HOME=/opt/uploadserver/java
+
+Type=forking
+ExecStart=/opt/uploadserver/kafka/bin/zookeeper-server-start.sh -daemon /opt/uploadserver/kafka/config/zookeeper.properties
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

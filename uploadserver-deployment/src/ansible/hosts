@@ -1,0 +1,19 @@
+localhost ansible_connection=local
+
+[directory]
+localhost
+
+[ftp]
+localhost
+
+[queue]
+localhost
+
+[database]
+localhost
+
+[consumer]
+localhost
+
+[web]
+localhost

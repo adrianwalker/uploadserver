@@ -1,0 +1,66 @@
+- name: Create apacheds group
+  group:
+    name: apacheds
+
+- name: Create apacheds user
+  user:
+    name: apacheds
+    group: nopasswdlogin
+    system: yes
+    createhome: no
+
+- name: Create Apache Directory Server directory
+  file:
+    path: /opt/uploadserver/apacheds
+    state: directory
+    owner: apacheds
+    group: apacheds
+
+- name:  Unarchive Apache Directory Server
+  unarchive:
+    src: ../files/apacheds-{{ds_version}}.tar.gz
+    dest: /opt/uploadserver/apacheds
+    remote_src: no
+    extra_opts: ['--strip-components=1']
+    owner: apacheds
+    group: apacheds
+
+- name: Copy systemd service
+  template:
+    src: ../templates/apacheds.service
+    dest: /etc/systemd/system/apacheds.service
+
+- name: Restart apacheds service
+  systemd:
+    daemon_reload: yes
+    name: apacheds
+    state: restarted
+
+- name: Wait for port 10389
+  wait_for:
+    port: 10389
+    delay: 3
+    timeout: 60
+
+- name: Create testuser
+  ldap_entry:
+    server_uri: ldap://{{inventory_hostname}}:10389
+    bind_dn: uid=admin,ou=system
+    bind_pw: secret
+    dn: uid=testuser,ou=users,ou=system
+    objectClass:
+      - extensibleObject
+      - organizationalPerson
+      - person
+      - inetOrgPerson
+      - top
+    attributes:
+      cn: testuser
+      sn: testuser
+      pwdAttribute: userPassword
+      pwdLockout: false
+      pwdMaxIdle: 1800
+      uid: testuser
+      unixFilePath: /testuser
+      userPassword: "{SSHA}ABamD6xvDnOus0ET8sZkivOLYwRadsSptRxe+Q=="
+

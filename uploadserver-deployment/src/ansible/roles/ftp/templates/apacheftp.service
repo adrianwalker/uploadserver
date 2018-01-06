@@ -1,0 +1,19 @@
+[Unit]
+Description=ApacheFTP
+After=network.target
+
+[Service]
+User=apacheftp
+Group=apacheftp
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/opt/uploadserver/java/bin:/opt/uploadserver/apacheftp/bin
+Environment=JAVA_HOME=/opt/uploadserver/java
+Environment=FTPD_HOME=/opt/uploadserver/apacheftp
+
+Type=simple
+ExecStart=/opt/uploadserver/apacheftp/bin/ftpd.sh ./res/conf/ftpd.xml
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

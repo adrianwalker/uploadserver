@@ -1,0 +1,53 @@
+- name: Create cassandra group
+  group:
+    name: cassandra
+
+- name: Create cassandra user
+  user:
+    name: cassandra
+    group: cassandra
+    system: yes
+    createhome: no
+
+- name: Create Apache Cassandra directory
+  file:
+    path: /opt/uploadserver/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+
+- name: Unarchive Apache Cassandra
+  unarchive:
+    src: ../files/apache-cassandra-{{cassandra_version}}-bin.tar.gz
+    dest: /opt/uploadserver/cassandra
+    remote_src: no
+    extra_opts: ['--strip-components=1']
+    owner: cassandra
+    group: cassandra
+
+- name: Copy uploadserver schema
+  template:
+    src: ../templates/uploadserver.cql
+    dest: /opt/uploadserver/cassandra/uploadserver.cql
+    owner: cassandra
+    group: cassandra
+
+- name: Copy systemd service
+  template:
+    src: ../templates/cassandra.service
+    dest: /etc/systemd/system/cassandra.service
+
+- name: Restart cassandra service
+  systemd:
+    daemon_reload: yes
+    name: cassandra
+    state: restarted
+
+- name: Wait for port 9042
+  wait_for:
+    port: 9042
+    delay: 3
+    timeout: 60
+
+- name: Create uploadserver keyspace
+  command: /opt/uploadserver/cassandra/bin/cqlsh -f /opt/uploadserver/cassandra/uploadserver.cql

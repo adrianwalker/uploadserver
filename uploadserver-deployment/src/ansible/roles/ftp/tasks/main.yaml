@@ -1,0 +1,73 @@
+- name: Create apacheftp group
+  group:
+    name: apacheftp
+
+- name: Create apacheftp user
+  user:
+    name: apacheftp
+    group: apacheftp
+    system: yes
+    createhome: no
+
+- name: Create Apache FTP Server directory
+  file:
+    path: /opt/uploadserver/apacheftp
+    state: directory
+    owner: apacheftp
+    group: apacheftp
+
+- name:  Unarchive Apache FTP Server
+  unarchive:
+    src: ../files/apache-ftpserver-{{ftpserver_version}}.tar.gz
+    dest: /opt/uploadserver/apacheftp
+    remote_src: no
+    extra_opts: ['--strip-components=1']
+    owner: apacheftp
+    group: apacheftp
+
+- name:  Unarchive Upload Server dependencies
+  unarchive:
+    src: ../../../../../../uploadserver-deployment/target/uploadserver-dependencies.tar.gz
+    dest: /opt/uploadserver/apacheftp/common/lib
+    remote_src: no
+    owner: consumer
+    group: consumer
+
+- name: Create keystore
+  command: >
+    keytool -genkeypair -alias keystore -keyalg RSA
+    -keystore /opt/uploadserver/apacheftp/res/uploadserver-keystore.jks
+    -dname "dc=taffnaid,dc=pics"
+    -storepass secret
+    -keypass secret
+
+- name: Copy Apache FTP config
+  template:
+    src: ../templates/ftpd.xml
+    dest: /opt/uploadserver/apacheftp/res/conf/ftpd.xml
+    owner: apacheftp
+    group: apacheftp
+
+- name: Copy logging config
+  template:
+    src: ../templates/logback.xml
+    dest: /opt/uploadserver/apacheftp/common/classes/logback.xml
+    owner: apacheftp
+    group: apacheftp
+
+- name: Copy systemd service
+  template:
+    src: ../templates/apacheftp.service
+    dest: /etc/systemd/system/apacheftp.service
+
+- name: Restart apacheftp service
+  systemd:
+    daemon_reload: yes
+    name: apacheftp
+    state: restarted
+
+- name: Wait for port 8021
+  wait_for:
+    port: 8021
+    delay: 3
+    timeout: 60

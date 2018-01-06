@@ -1,0 +1,57 @@
+- name: Create tomcat group
+  group:
+    name: tomcat
+
+- name: Create tomcat user
+  user:
+    name: tomcat
+    group: tomcat
+    system: yes
+    createhome: no
+
+- name: Create Apache Tomcat directory
+  file:
+    path: /opt/uploadserver/tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat
+
+- name: Unarchive Apache Tomcat
+  unarchive:
+    src: ../files/apache-tomcat-{{tomcat_version}}.tar.gz
+    dest: /opt/uploadserver/tomcat
+    remote_src: no
+    extra_opts: ['--strip-components=1']
+    owner: tomcat
+    group: tomcat
+
+- name: Copy REST WAR
+  copy:
+    src: ../../../../../../uploadserver-rest/target/uploadserver-rest-{{rest_version}}.war
+    dest: /opt/uploadserver/tomcat/webapps/uploadserver-rest.war
+    owner: tomcat
+    group: tomcat
+
+- name: Copy web WAR
+  copy:
+    src: ../../../../../../uploadserver-web/target/uploadserver-web-{{web_version}}.war
+    dest: /opt/uploadserver/tomcat/webapps/uploadserver-web.war
+    owner: tomcat
+    group: tomcat
+
+- name: Copy systemd service
+  template:
+    src: ../templates/tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+
+- name: Restart tomcat service
+  systemd:
+    daemon_reload: yes
+    name: tomcat
+    state: restarted
+
+- name: Wait for port 8080
+  wait_for:
+    port: 8080
+    delay: 3
+    timeout: 60

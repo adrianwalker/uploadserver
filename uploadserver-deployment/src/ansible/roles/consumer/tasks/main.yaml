@@ -1,0 +1,36 @@
+- name: Create consumer group
+  group:
+    name: consumer
+
+- name: Create consumer user
+  user:
+    name: consumer
+    group: consumer
+    system: yes
+    createhome: no
+
+- name: Create Consumer directory
+  file:
+    path: /opt/uploadserver/consumer
+    state: directory
+    owner: consumer
+    group: consumer
+
+- name:  Unarchive Consumer
+  unarchive:
+    src: ../../../../../../uploadserver-consumer/target/uploadserver-consumer-{{consumer_version}}.tar.gz
+    dest: /opt/uploadserver/consumer
+    remote_src: no
+    owner: consumer
+    group: consumer
+
+- name: Copy systemd service
+  template:
+    src: ../templates/consumer.service
+    dest: /etc/systemd/system/consumer.service
+
+- name: Restart consumer service
+  systemd:
+    daemon_reload: yes
+    name: consumer
+    state: restarted

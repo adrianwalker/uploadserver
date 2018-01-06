@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/uploadserver.css">
+    <script src="js/jquery-3.2.1.min.js"></script>
+
+    <script id="list-nav-template" type="text/html">
+    <a href="{parent}" class="parent">&#9783;</a>
+  </script>
+
+  <script id="list-preview-template" type="text/html">
+    <div class="preview">
+      <a href="{url}">
+        <img src="{previewUrl}" alt=":-("/>
+        <div class="name">{name}</div>
+      </a>
+    </div>
+  </script>
+
+  <script id="view-nav-template" type="text/html">
+    <a href="{previous}" class="previous">&lang;</a>
+    <a href="{parent}" class="parent">&#9783;</a>
+    <a href="{next}" class="next">&rang;</a>
+  </script>
+
+  <script id="view-image-template" type="text/html">
+    <img src="{url}" alt=":-("/>
+  </script>
+
+  <script src="js/uploadserver.js"></script>
+</head>
+<body>
+  <div id="content" class="content">
+
+    <div id="home" class="home" style="display: none">
+      <input id="username" class="username" type="text"/>
+      <a id="go" href="" class="next">&rang;</a>
+    </div>
+
+    <div id="list" class="list" style="display: none">
+      <div id="list-nav" class="nav"></div>
+      <div id="list-previews" class="previews"></div>
+      <div id="list-more" class="more">
+        <a id="more">&hellip;</a>
+      </div>
+    </div>
+
+    <div id="view" class="view" style="display: none">
+      <div id="view-nav" class="nav"></div>
+      <div id="view-image" class="image"></div>
+      <div id="view-prefetch-previous" class="prefetch"></div>
+      <div id="view-prefetch-next" class="prefetch"></div>
+    </div>
+  </div>
+</body>
+</html>
